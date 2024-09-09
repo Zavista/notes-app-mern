@@ -1,5 +1,18 @@
+import { useState } from "react";
+import { Button } from "react-bootstrap";
+
 const App = () => {
-  return <div>App</div>;
+  const [clickCount, setClickCount] = useState(0);
+
+  return (
+    <Button
+      onClick={() => {
+        setClickCount(clickCount + 1);
+      }}
+    >
+      Clicked {clickCount} times
+    </Button>
+  );
 };
 
 export default App;
