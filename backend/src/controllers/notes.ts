@@ -3,6 +3,7 @@ import NoteModel from "../models/note";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
 
+// GET NOTES
 export const getNotes: RequestHandler = async (req, res, next) => {
   try {
     const notes = await NoteModel.find().exec();
@@ -13,6 +14,7 @@ export const getNotes: RequestHandler = async (req, res, next) => {
   }
 };
 
+// GET A NOTE
 export const getNote: RequestHandler = async (req, res, next) => {
   const noteId = req.params.noteId;
   try {
@@ -37,6 +39,7 @@ interface CreateNoteBody {
   text?: string;
 }
 
+// CREATE NOTE
 // give unknown type to params, and other so we can't access them. give the createNoteBody type to the body which is the 3rd one
 export const createNote: RequestHandler<
   unknown,
@@ -58,6 +61,72 @@ export const createNote: RequestHandler<
     });
 
     res.status(201).json(newNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// UPDATE NOTE
+interface UpdateNoteBody {
+  title?: string;
+  text?: string;
+}
+
+interface UpdateNoteParams {
+  noteId: string;
+}
+
+export const updateNote: RequestHandler<
+  UpdateNoteParams,
+  unknown,
+  UpdateNoteBody,
+  unknown
+> = async (req, res, next) => {
+  const noteId = req.params.noteId;
+  const newTitle = req.body.title;
+  const newText = req.body.text;
+
+  try {
+    if (!mongoose.isValidObjectId(noteId)) {
+      throw createHttpError(400, "Invalid note id");
+    }
+
+    if (!newTitle) {
+      throw createHttpError(400, "Note must have a title");
+    }
+
+    const note = await NoteModel.findById(noteId).exec();
+
+    if (!note) {
+      throw createHttpError(404, "Note not found");
+    }
+
+    note.title = newTitle;
+    note.text = newText;
+
+    const updatedNote = await note.save();
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteNote: RequestHandler = async (req, res, next) => {
+  const noteId = req.params.noteId;
+  try {
+    if (!mongoose.isValidObjectId(noteId)) {
+      throw createHttpError(400, "Invalid note id");
+    }
+
+    const note = await NoteModel.findById(noteId).exec();
+
+    if (!note) {
+      throw createHttpError(404, "Note not found");
+    }
+
+    await note.deleteOne();
+
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }
