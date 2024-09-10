@@ -1,18 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
+import { Note } from "./models/note";
 
 const App = () => {
-  const [clickCount, setClickCount] = useState(0);
+  const [notes, setNotes] = useState<Note[]>([]);
 
-  return (
-    <Button
-      onClick={() => {
-        setClickCount(clickCount + 1);
-      }}
-    >
-      Clicked {clickCount} times
-    </Button>
-  );
+  const getNotes = async () => {
+    try {
+      const res = await fetch("/api/notes", { method: "GET" });
+      const notes = await res.json();
+      setNotes(notes);
+    } catch (error) {
+      console.error(error);
+      alert(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotes();
+  }, []);
+
+  return <Button>{JSON.stringify(notes)}</Button>;
 };
 
 export default App;
