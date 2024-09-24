@@ -1,6 +1,7 @@
 import { Note } from "../models/note";
 
 async function fetchData(input: RequestInfo, init?: RequestInit) {
+  // fetch wrapper to handle errors
   const response = await fetch(input, init);
   if (response.ok) {
     return response;
