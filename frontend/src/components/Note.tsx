@@ -8,10 +8,16 @@ import { MdDelete } from "react-icons/md";
 interface NoteProps {
   note: NoteModel;
   classname?: string;
+  onNoteClicked: (note: NoteModel) => void;
   onDeleteNoteClicked: (note: NoteModel) => void;
 }
 
-const Note = ({ note, classname, onDeleteNoteClicked }: NoteProps) => {
+const Note = ({
+  note,
+  classname,
+  onDeleteNoteClicked,
+  onNoteClicked,
+}: NoteProps) => {
   const { title, text, createdAt, updatedAt } = note;
 
   let createdUpdatedText: string; // fine for now since formateDate is cheap but for bigger operations, try using UseMemo so it isn't being calculated on each render
@@ -22,7 +28,10 @@ const Note = ({ note, classname, onDeleteNoteClicked }: NoteProps) => {
   }
 
   return (
-    <Card className={`${styles.noteCard} ${classname}`}>
+    <Card
+      className={`${styles.noteCard} ${classname}`}
+      onClick={() => onNoteClicked(note)}
+    >
       <Card.Body className={styles.cardBody}>
         <Card.Title className={stylesUtils.flexCenter}>
           {title}

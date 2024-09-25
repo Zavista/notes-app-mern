@@ -5,12 +5,13 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import styles from "./styles/NotesPage.module.css";
 import stylesUtils from "./styles/utils.module.css";
 import * as NotesApi from "./network/notes_api";
-import AddNoteDialog from "./components/AddNoteDialog";
+import AddEditNoteDialog from "./components/AddEditNoteDialog";
 import { FaPlus } from "react-icons/fa";
 
 const App = () => {
   const [notes, setNotes] = useState<NoteModel[]>([]);
-  const [showAddNoteDialog, setShowAddNoteDialog] = useState(false);
+  const [showAddEditNoteDialog, setShowAddEditNoteDialog] = useState(false);
+  const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
 
   const getNotes = async () => {
     try {
@@ -39,7 +40,7 @@ const App = () => {
   return (
     <Container>
       <Button
-        onClick={() => setShowAddNoteDialog(true)}
+        onClick={() => setShowAddEditNoteDialog(true)}
         className={`mb-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
       >
         <FaPlus></FaPlus>
@@ -52,18 +53,35 @@ const App = () => {
               note={note}
               classname={styles.note}
               onDeleteNoteClicked={deleteNote}
+              onNoteClicked={setNoteToEdit}
             ></Note>
           </Col>
         ))}
       </Row>
-      {showAddNoteDialog && (
-        <AddNoteDialog
-          onDismiss={() => setShowAddNoteDialog(false)}
+      {showAddEditNoteDialog && (
+        <AddEditNoteDialog
+          onDismiss={() => setShowAddEditNoteDialog(false)}
           onNoteSaved={(newNote) => {
-            setShowAddNoteDialog(false);
+            setShowAddEditNoteDialog(false);
             setNotes([...notes, newNote]);
           }}
-        ></AddNoteDialog>
+        ></AddEditNoteDialog>
+      )}
+      {noteToEdit && (
+        <AddEditNoteDialog
+          noteToEdit={noteToEdit}
+          onDismiss={() => setNoteToEdit(null)}
+          onNoteSaved={(updatedNote) => {
+            setNotes(
+              notes.map((existingNote) =>
+                existingNote._id === updatedNote._id
+                  ? updatedNote
+                  : existingNote
+              )
+            );
+            setNoteToEdit(null);
+          }}
+        ></AddEditNoteDialog>
       )}
     </Container>
   );
