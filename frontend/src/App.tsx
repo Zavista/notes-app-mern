@@ -6,6 +6,7 @@ import styles from "./styles/NotesPage.module.css";
 import stylesUtils from "./styles/utils.module.css";
 import * as NotesApi from "./network/notes_api";
 import AddNoteDialog from "./components/AddNoteDialog";
+import { FaPlus } from "react-icons/fa";
 
 const App = () => {
   const [notes, setNotes] = useState<NoteModel[]>([]);
@@ -21,6 +22,16 @@ const App = () => {
     }
   };
 
+  const deleteNote = async (note: NoteModel) => {
+    try {
+      await NotesApi.deleteNote(note._id);
+      setNotes(notes.filter((exisitingNote) => exisitingNote._id !== note._id));
+    } catch (error) {
+      console.error(error);
+      alert(error);
+    }
+  };
+
   useEffect(() => {
     getNotes();
   }, []);
@@ -29,14 +40,19 @@ const App = () => {
     <Container>
       <Button
         onClick={() => setShowAddNoteDialog(true)}
-        className={`mb-4 ${stylesUtils.blockCenter}`}
+        className={`mb-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
       >
+        <FaPlus></FaPlus>
         Add New Note
       </Button>
       <Row xs={1} md={2} xl={3} className="g-4">
         {notes.map((note) => (
           <Col key={note._id}>
-            <Note note={note} classname={styles.note}></Note>
+            <Note
+              note={note}
+              classname={styles.note}
+              onDeleteNoteClicked={deleteNote}
+            ></Note>
           </Col>
         ))}
       </Row>
